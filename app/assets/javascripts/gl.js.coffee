@@ -6,25 +6,18 @@ class @App
     if KeyManager.isPressed(3)
       @angle += 0.05
 
-
-
     gWorld = mat4.perspective(mat4.create(), 30, window.innerWidth / window.innerHeight, 0, 100)
     mat4.rotateZ(gWorld, gWorld, @angle)
+    @back.setGWorld(gWorld)
+    @base.setGWorld(gWorld)
 
-    @GL.uniformMatrix4fv(@world, false, gWorld);
-
-#    @GL.viewport 0.0, 0.0, @CANVAS.width, @CANVAS.height
     @GL.clear @GL.COLOR_BUFFER_BIT
-    @GL.vertexAttribPointer Shader.getInstance()._position, 2, @GL.FLOAT, false, 4 * 2, 0
-    @GL.bindBuffer @GL.ARRAY_BUFFER, Shader.getInstance().TRIANGLE_VERTEX
-    @GL.bindBuffer @GL.ELEMENT_ARRAY_BUFFER, Shader.getInstance().TRIANGLE_FACES
-    @GL.drawElements @GL.TRIANGLES, 36, @GL.UNSIGNED_SHORT, 0
+    Renderer.renderScene()
     @GL.flush()
 
   @idle: () ->
     @angle = 0
     setInterval ( => @animate()), 10
-#    @animate()
 
   @init: () ->
     @CANVAS = document.getElementById("your_canvas")
@@ -38,10 +31,12 @@ class @App
       return false
 
     KeyManager.init()
-    shader = Shader.initalize(@GL)
-    shader.initalizeBuffers()
 
-    @world = shader.gWorld
+    b = new Base(@GL)
+    a = new Background(@GL)
+    @back = new Shader(@GL, a )
+    @base = new Shader(@GL, b)
+    Renderer.initialize(@GL, @base, @back)
 
     @GL.clearColor 0.0, 0.0, 0.0, 0.0
     @idle()
