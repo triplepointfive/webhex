@@ -1,14 +1,15 @@
 class @Shader
   shaderVertexSource: """
-    attribute vec2 position; //the position of the point
+    attribute vec2 position;
+    uniform mat4 gWorld;
     void main(void) { //pre-built function
-      gl_Position = vec4(position, 0., 1.); //0. is the z, and 1 is w
+      gl_Position = gWorld * vec4( position, -5.0, 1.);
     }
     """
   shaderFragmentSource: """
     precision mediump float;
     void main(void) {
-      gl_FragColor = vec4(0.,0.,0., 1.); //black color
+      gl_FragColor = vec4(0.,0.,0., 1.);
     }
     """
 
@@ -30,13 +31,14 @@ class @Shader
   constructor: (@GL) ->
     shader_vertex = @get_shader(@shaderVertexSource, @GL.VERTEX_SHADER, "VERTEX")
     shader_fragment = @get_shader(@shaderFragmentSource, @GL.FRAGMENT_SHADER, "FRAGMENT")
-    SHADER_PROGRAM = @GL.createProgram()
-    @GL.attachShader SHADER_PROGRAM, shader_vertex
-    @GL.attachShader SHADER_PROGRAM, shader_fragment
-    @GL.linkProgram SHADER_PROGRAM
-    @_position = @GL.getAttribLocation(SHADER_PROGRAM, "position")
+    @SHADER_PROGRAM = @GL.createProgram()
+    @GL.attachShader @SHADER_PROGRAM, shader_vertex
+    @GL.attachShader @SHADER_PROGRAM, shader_fragment
+    @GL.linkProgram @SHADER_PROGRAM
+    @_position = @GL.getAttribLocation(@SHADER_PROGRAM, 'position')
+    @gWorld = @GL.getUniformLocation(@SHADER_PROGRAM, 'gWorld')
     @GL.enableVertexAttribArray @_position
-    @GL.useProgram SHADER_PROGRAM
+    @GL.useProgram @SHADER_PROGRAM
 
   initalizeBuffers: ->
     #POINTS :
@@ -44,17 +46,17 @@ class @Shader
       0, 0.8,
       0, 1,
       -0.692, 0.4,
-      -1, 0.5,
+      -0.866, 0.5,
 
       -0.692, -0.4,
-      -1, -0.5,
+      -0.866, -0.5,
       0, -0.8,
       0, -1,
 
       0.692, -0.4,
-      1, -0.5,
+      0.866, -0.5,
       0.692, 0.4,
-      1, 0.5,
+      0.866, 0.5,
     ]
     @TRIANGLE_VERTEX = @GL.createBuffer()
     @GL.bindBuffer @GL.ARRAY_BUFFER, @TRIANGLE_VERTEX

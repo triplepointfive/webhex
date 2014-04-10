@@ -8,14 +8,7 @@ gem 'turbolinks'
 gem 'jbuilder', '~> 1.2'
 gem 'mongoid', github: 'mongoid/mongoid'
 gem 'bson_ext'
+gem 'gl-matrix-rails'
 
 gem 'slim-rails'
 gem 'inherited_resources'
-gem 'mutations'
-gem 'mathjax-rails'
-
-group :test do
-  gem 'rspec-rails'
-  gem 'cucumber-rails', require: false
-  gem 'database_cleaner'
-end

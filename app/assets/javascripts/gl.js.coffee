@@ -1,7 +1,19 @@
-class App
+class @App
 
   @animate: ->
-    @GL.viewport 0.0, 0.0, @CANVAS.width, @CANVAS.height
+    if KeyManager.isPressed(1)
+      @angle -= 0.05
+    if KeyManager.isPressed(3)
+      @angle += 0.05
+
+
+
+    gWorld = mat4.perspective(mat4.create(), 30, window.innerWidth / window.innerHeight, 0, 100)
+    mat4.rotateZ(gWorld, gWorld, @angle)
+
+    @GL.uniformMatrix4fv(@world, false, gWorld);
+
+#    @GL.viewport 0.0, 0.0, @CANVAS.width, @CANVAS.height
     @GL.clear @GL.COLOR_BUFFER_BIT
     @GL.vertexAttribPointer Shader.getInstance()._position, 2, @GL.FLOAT, false, 4 * 2, 0
     @GL.bindBuffer @GL.ARRAY_BUFFER, Shader.getInstance().TRIANGLE_VERTEX
@@ -10,7 +22,9 @@ class App
     @GL.flush()
 
   @idle: () ->
-    setInterval ( => @animate()), 100
+    @angle = 0
+    setInterval ( => @animate()), 10
+#    @animate()
 
   @init: () ->
     @CANVAS = document.getElementById("your_canvas")
@@ -23,8 +37,11 @@ class App
       alert "You are not webgl compatible :("
       return false
 
+    KeyManager.init()
     shader = Shader.initalize(@GL)
     shader.initalizeBuffers()
+
+    @world = shader.gWorld
 
     @GL.clearColor 0.0, 0.0, 0.0, 0.0
     @idle()
