@@ -1,4 +1,4 @@
-class @Shader
+class Shader
 
   prepareShader: (source, type, typeString) ->
     shader = @GL.createShader(type)
@@ -10,13 +10,14 @@ class @Shader
     shader
 
   constructor: (@GL, @scene) ->
-    shader_vertex = @prepareShader(@scene.shaderVertexSource, @GL.VERTEX_SHADER, "VERTEX")
-    shader_fragment = @prepareShader(@scene.shaderFragmentSource, @GL.FRAGMENT_SHADER, "FRAGMENT")
+    shader_vertex = @prepareShader(@shaderVertexSource(), @GL.VERTEX_SHADER, "VERTEX")
+    shader_fragment = @prepareShader(@shaderFragmentSource(), @GL.FRAGMENT_SHADER, "FRAGMENT")
     @SHADER_PROGRAM = @GL.createProgram()
     @GL.attachShader @SHADER_PROGRAM, shader_vertex
     @GL.attachShader @SHADER_PROGRAM, shader_fragment
     @GL.linkProgram @SHADER_PROGRAM
     @prepareAttribLocations()
+    @setupUniformVars()
     @gWorldLoc = @GL.getUniformLocation(@SHADER_PROGRAM, 'gWorld')
 
   setGWorld: (@gWorld) ->
@@ -24,10 +25,58 @@ class @Shader
   use: () ->
     @GL.useProgram @SHADER_PROGRAM
     @GL.enableVertexAttribArray @_position
-    @GL.uniformMatrix4fv(@gWorldLoc, false, @gWorld) if @gWorld
+    @GL.uniformMatrix4fv(@gWorldLoc, false, @gWorld)
+    @prepareUniformVars()
 
   shutdown: () ->
     @GL.disableVertexAttribArray @_position
+
+  vertexBuffer: () ->
+    @scene.vertex_buffer
+
+  shaderVertexSource: () ->
+  shaderFragmentSource: () ->
+  setupUniformVars: () ->
+  prepareUniformVars: () ->
+  render: () ->
+
+  prepareAttribLocations: () ->
+    @_position = @GL.getAttribLocation(@SHADER_PROGRAM, 'position')
+
+class @BaseShader extends  Shader
+
+  shaderVertexSource: () ->
+    """
+    attribute vec2 position;
+
+    uniform mat4 gWorld;
+    uniform vec3 bColor3;
+
+    varying vec3 vColor;
+    void main(void) {
+      gl_Position = gWorld * vec4( position, -5.0, 1.);
+      vColor = bColor3;
+    }
+    """
+
+  shaderFragmentSource: () ->
+    """
+    precision mediump float;
+
+    varying vec3 vColor;
+    void main(void) {
+      gl_FragColor = vec4(vColor, 1.);
+    }
+    """
+
+  prepareUniformVars: () ->
+    @GL.uniform3fv(@bColor3Loc, vec3.fromValues(0.0, 0.0, 0.0))
+
+  setupUniformVars: () ->
+    @bColor3Loc = @GL.getUniformLocation(@SHADER_PROGRAM, 'bColor3')
+
+  faceBuffer: () ->
+    @scene.face_buffer
 
   render: () ->
     @GL.bindBuffer @GL.ARRAY_BUFFER, @vertexBuffer()
@@ -38,17 +87,47 @@ class @Shader
     @GL.drawElements @GL.TRIANGLES, @scene.size(), @GL.UNSIGNED_SHORT, 0
     @shutdown()
 
-  vertexBuffer: () ->
-    @scene.vertex_buffer
+class @ColoredShader extends Shader
 
-  faceBuffer: () ->
-    @scene.face_buffer
+  shaderVertexSource: () ->
+    """
+    attribute vec3 position;
 
-  prepareAttribLocations: () ->
-    @_position = @GL.getAttribLocation(@SHADER_PROGRAM, 'position')
+    uniform mat4 gWorld;
+    uniform vec3 bColor1;
+    uniform vec3 bColor2;
+    uniform vec3 bColor3;
 
+    varying vec3 vColor;
+    void main(void) {
+      gl_Position = gWorld * vec4( position.xy, -6.0, 1.);
+      if (position.z == 0.0)
+        vColor = bColor1;
+      else if (position.z == 1.0)
+        vColor = bColor2;
+      else
+        vColor = bColor3;
+    }
+    """
+  shaderFragmentSource: () ->
+    """
+    precision mediump float;
 
-class @ColoredShader extends @Shader
+    varying vec3 vColor;
+    void main(void) {
+      gl_FragColor = vec4(vColor, 1.);
+    }
+    """
+
+  prepareUniformVars: () ->
+    @GL.uniform3fv(@bColor1Loc, vec3.fromValues(1.0, 0.0, 0.0))
+    @GL.uniform3fv(@bColor2Loc, vec3.fromValues(1.0, 1.0, 0.0))
+    @GL.uniform3fv(@bColor3Loc, vec3.fromValues(0.0, 0.0, 0.0))
+
+  setupUniformVars: () ->
+    @bColor1Loc = @GL.getUniformLocation(@SHADER_PROGRAM, 'bColor1')
+    @bColor2Loc = @GL.getUniformLocation(@SHADER_PROGRAM, 'bColor2')
+    @bColor3Loc = @GL.getUniformLocation(@SHADER_PROGRAM, 'bColor3')
 
   render: () ->
     @GL.bindBuffer @GL.ARRAY_BUFFER, @vertexBuffer()

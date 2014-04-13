@@ -1,23 +1,35 @@
 class @App
 
   @animate: ->
+    @nagl += 0.01
     if KeyManager.isPressed(1)
       @angle -= 0.05
     if KeyManager.isPressed(3)
       @angle += 0.05
 
-    gWorld = mat4.perspective(mat4.create(), 30, window.innerWidth / window.innerHeight, 0, 100)
-    mat4.rotateZ(gWorld, gWorld, @angle)
-    @back.setGWorld(gWorld)
-    @base.setGWorld(gWorld)
+    @angle -= 2 * Math.PI if @angle > 10
+    @nagl -= 2 * Math.PI if @nagl > 10
+    @angle += 2 * Math.PI if @angle < -10
+    @nagl += 2 * Math.PI if @nagl < -10
 
-#    @GL.viewport 0, 0, @GL.viewportWidth, @GL.viewportHeight
+    gWorld = mat4.perspective(mat4.create(), 30, window.innerWidth / window.innerHeight, 0, 100)
+    plRotated = mat4.rotateZ(mat4.create(), gWorld, @angle + @nagl)
+    bRotated = mat4.rotateZ(mat4.create(), gWorld, @nagl)
+    plRransl = mat4.translate(mat4.create(), plRotated, vec3.fromValues(0, 1.5, 0))
+
+    @back.setGWorld(bRotated)
+    @base.setGWorld(bRotated)
+    @pl.setGWorld(plRransl)
+
     @GL.clear @GL.COLOR_BUFFER_BIT
-    Renderer.renderScene()
+    @back.render()
+    @base.render()
+    @pl.render()
     @GL.flush()
 
   @idle: () ->
     @angle = 0
+    @nagl = 0
     setInterval ( => @animate()), 10
 
   @init: () ->
@@ -34,8 +46,8 @@ class @App
     KeyManager.init()
 
     @back = new ColoredShader(@GL, new Background(@GL) )
-    @base = new Shader(@GL, new Base(@GL))
-    Renderer.initialize(@GL, @base, @back)
+    @base = new BaseShader(@GL, new Base(@GL))
+    @pl = new ColoredShader(@GL, new Player(@GL))
 
     @GL.clearColor 0.0, 0.0, 0.0, 0.0
     @idle()
