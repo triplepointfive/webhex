@@ -46,3 +46,14 @@ class @Base extends @Scene
       10, 11, 0
       11, 0, 1
     ]
+
+  itemSize: 2
+  size: () ->
+    @faces.length
+
+  setAdditionalBuffers: () ->
+    @face_buffer = @GL.createBuffer()
+    @GL.bindBuffer @GL.ELEMENT_ARRAY_BUFFER, @face_buffer
+    @GL.bufferData @GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(@faces), @GL.STATIC_DRAW
+    @face_buffer.itemSize = 3
+    @face_buffer.numItems = @faces.length

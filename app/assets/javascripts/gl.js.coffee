@@ -11,6 +11,7 @@ class @App
     @back.setGWorld(gWorld)
     @base.setGWorld(gWorld)
 
+#    @GL.viewport 0, 0, @GL.viewportWidth, @GL.viewportHeight
     @GL.clear @GL.COLOR_BUFFER_BIT
     Renderer.renderScene()
     @GL.flush()
@@ -32,10 +33,8 @@ class @App
 
     KeyManager.init()
 
-    b = new Base(@GL)
-    a = new Background(@GL)
-    @back = new Shader(@GL, a )
-    @base = new Shader(@GL, b)
+    @back = new ColoredShader(@GL, new Background(@GL) )
+    @base = new Shader(@GL, new Base(@GL))
     Renderer.initialize(@GL, @base, @back)
 
     @GL.clearColor 0.0, 0.0, 0.0, 0.0
