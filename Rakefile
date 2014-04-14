@@ -3,4 +3,4 @@
 
 require File.expand_path('../config/application', __FILE__)
 
-Mlog::Application.load_tasks
+Webhex::Application.load_tasks

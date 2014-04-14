@@ -5,7 +5,7 @@ require "action_mailer/railtie"
 require "sprockets/railtie"
 
 Bundler.require(*Rails.groups)
-module Mlog
+module Webhex
   class Application < Rails::Application
   end
 end

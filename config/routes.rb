@@ -1,4 +1,4 @@
-Mlog::Application.routes.draw do
+Webhex::Application.routes.draw do
   resources :posts
   root 'posts#index'
 end

@@ -1,2 +1,2 @@
 require File.expand_path('../application', __FILE__)
-Mlog::Application.initialize!
+Webhex::Application.initialize!
