@@ -1,4 +1,3 @@
 Webhex::Application.routes.draw do
-  resources :posts
-  root 'posts#index'
+  root 'application#index'
 end

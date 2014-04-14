@@ -1,6 +1,11 @@
 class @App
 
   @animate: ->
+    if @render
+      console.log 'nested'
+      return
+
+    @render = true
     @nagl += 0.01
     if KeyManager.isPressed(1)
       @angle -= 0.05
@@ -26,10 +31,12 @@ class @App
     @base.render()
     @pl.render()
     @GL.flush()
+    @render = false
 
   @idle: () ->
     @angle = 0
     @nagl = 0
+    @render = false
     setInterval ( => @animate()), 10
 
   @init: () ->
