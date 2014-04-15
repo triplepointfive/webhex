@@ -1,4 +1,8 @@
-class Shader
+class @Shader
+
+  @setColor1: (@color1) ->
+  @setColor2: (@color2) ->
+  @setColor3: (@color3) ->
 
   prepareShader: (source, type, typeString) ->
     shader = @GL.createShader(type)
@@ -43,7 +47,7 @@ class Shader
   prepareAttribLocations: () ->
     @_position = @GL.getAttribLocation(@SHADER_PROGRAM, 'position')
 
-class @BaseShader extends  Shader
+class @BaseShader extends  @Shader
 
   shaderVertexSource: () ->
     """
@@ -70,7 +74,7 @@ class @BaseShader extends  Shader
     """
 
   prepareUniformVars: () ->
-    @GL.uniform3fv(@bColor3Loc, vec3.fromValues(0.0, 0.0, 0.0))
+    @GL.uniform3fv(@bColor3Loc, Shader.color3)
 
   setupUniformVars: () ->
     @bColor3Loc = @GL.getUniformLocation(@SHADER_PROGRAM, 'bColor3')
@@ -87,7 +91,7 @@ class @BaseShader extends  Shader
     @GL.drawElements @GL.TRIANGLES, @scene.size(), @GL.UNSIGNED_SHORT, 0
     @shutdown()
 
-class @ColoredShader extends Shader
+class @ColoredShader extends @Shader
 
   shaderVertexSource: () ->
     """
@@ -120,9 +124,9 @@ class @ColoredShader extends Shader
     """
 
   prepareUniformVars: () ->
-    @GL.uniform3fv(@bColor1Loc, vec3.fromValues(1.0, 0.0, 0.0))
-    @GL.uniform3fv(@bColor2Loc, vec3.fromValues(1.0, 1.0, 0.0))
-    @GL.uniform3fv(@bColor3Loc, vec3.fromValues(0.0, 0.0, 0.0))
+    @GL.uniform3fv(@bColor1Loc, Shader.color1)
+    @GL.uniform3fv(@bColor2Loc, Shader.color2)
+    @GL.uniform3fv(@bColor3Loc, Shader.color3)
 
   setupUniformVars: () ->
     @bColor1Loc = @GL.getUniformLocation(@SHADER_PROGRAM, 'bColor1')
