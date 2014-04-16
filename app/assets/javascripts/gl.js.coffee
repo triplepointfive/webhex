@@ -7,10 +7,27 @@ hexToRgb = (hex) ->
     ]
 
 class @App
+  @swapColors: () ->
+    @set = !@set
 
-  @bColor1: ['1E7F7F', '7554A5', 'C75C92', 'B4E068', 'F2E470', '874BE6', 'F43F88', 'A5F840', 'FFEB42', '1E7F7F']
-  @bColor2: ['0A5353', '52BFBF', '724F61', '728059', '8A8660', '7855AD', 'B8517A', '8CBB52', 'C0B455', '0A5353']
-  @bColor3: ['296060', '1D0542', '50052B', '3B5A06', '615707', '4A1996', '9F154D', '63A215', 'A79716', '296060']
+  @bColors1: ['1E7F7F', '7554A5', 'C75C92', 'B4E068', 'F2E470', '874BE6', 'F43F88', 'A5F840', 'FFEB42', '1E7F7F']
+  @bColors2: ['0A5353', '52BFBF', '724F61', '728059', '8A8660', '7855AD', 'B8517A', '8CBB52', 'C0B455', '0A5353']
+  @bColors3: ['296060', '1D0542', '50052B', '3B5A06', '615707', '4A1996', '9F154D', '63A215', 'A79716', '296060']
+
+  @bColor1: () ->
+    if @set
+      @bColors1
+    else
+      @bColors2
+
+  @bColor2: () ->
+    if @set
+      @bColors2
+    else
+      @bColors1
+
+  @bColor3: () ->
+    @bColors3
 
   @timeLine: [0, 5, 10, 20, 25, 30, 35, 40, 45, 50]
 
@@ -31,9 +48,9 @@ class @App
             (c1[1] * (la) + c2[1] * (lb)).toFixed(3),
             (c1[2] * (la) + c2[2] * (lb)).toFixed(3)
           )
-        Shader.setColor1 getColor(@bColor1)
-        Shader.setColor2 getColor(@bColor2)
-        Shader.setColor3 getColor(@bColor3)
+        Shader.setColor1 getColor(@bColor1())
+        Shader.setColor2 getColor(@bColor2())
+        Shader.setColor3 getColor(@bColor3())
         return
 
 
@@ -74,6 +91,8 @@ class @App
     @nagl = 0
     @colorTime = 0
     @render = false
+    @set = false
+    setInterval ( => @swapColors()), 1000
     setInterval ( => @animate()), 10
 
   @init: () ->
