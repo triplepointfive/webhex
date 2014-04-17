@@ -141,3 +141,14 @@ class @ColoredShader extends @Shader
     @GL.drawArrays @GL.TRIANGLES, 0, @vertexBuffer().numItems
     @shutdown()
 
+class @BlockShader extends @ColoredShader
+  vertexBuffer: () ->
+
+  render: () ->
+    for vBuffer in @scene.vertexBuffers()
+      @GL.bindBuffer @GL.ARRAY_BUFFER, vBuffer
+      @GL.vertexAttribPointer @_position, vBuffer.itemSize, @GL.FLOAT, false, 0, 0
+
+      @use()
+      @GL.drawArrays @GL.TRIANGLES, 0, vBuffer.numItems
+      @shutdown()

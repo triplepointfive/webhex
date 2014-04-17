@@ -57,7 +57,6 @@ class @Base extends Scene
     @face_buffer.numItems = @faces.length
 
 class @Background extends Scene
-
   vertexes:
     [
       0, 0, 1.0,
@@ -89,9 +88,7 @@ class @Background extends Scene
   size: () ->
     @vertexes.length / 3
 
-
 class @Player extends Scene
-
   a = 0.5
   r = (Math.sqrt(3) / 6 * a)
   R = (Math.sqrt(3) / 3 * a)
@@ -101,11 +98,75 @@ class @Player extends Scene
       0, R, 2.0,
       (-a / 2), (-r), 2.0,
       (a / 2), (-r), 2.0
-#      0, 0, 2.0,
-#      (a), 0, 2.0,
-#      0, 1, 2.0
     ]
 
   itemSize: 3
   size: () ->
     @vertexes.length / 3
+
+class @Blocks extends Scene
+
+  constructor: (@GL) ->
+    @vBuffers = []
+    for vertexes in @vertexes
+      vertex_buffer = @GL.createBuffer()
+      @GL.bindBuffer @GL.ARRAY_BUFFER, vertex_buffer
+      @GL.bufferData @GL.ARRAY_BUFFER, new Float32Array(vertexes), @GL.STATIC_DRAW
+      vertex_buffer.itemSize = 3
+      vertex_buffer.numItems = vertexes.length / 3
+      @vBuffers.push vertex_buffer
+
+  vertexBuffers: () ->
+    @vBuffers
+
+  vertexes:
+    [
+      [
+        0, 0.8, 2.0,
+        0, 1, 2.0,
+        -0.692, 0.4, 2.0,
+        0, 1, 2.0,
+        -0.692, 0.4, 2.0,
+        -0.866, 0.5, 2.0,
+      ],
+      [
+        -0.692, 0.4, 2.0,
+        -0.866, 0.5, 2.0,
+        -0.692, -0.4, 2.0,
+        -0.866, 0.5, 2.0,
+        -0.692, -0.4, 2.0,
+        -0.866, -0.5, 2.0,
+      ],
+      [
+        -0.692, -0.4, 2.0,
+        -0.866, -0.5, 2.0,
+        0, -0.8, 2.0,
+        -0.866, -0.5, 2.0,
+        0, -0.8, 2.0,
+        0, -1, 2.0,
+      ],
+      [
+        0, -0.8, 2.0,
+        0, -1, 2.0,
+        0.692, -0.4, 2.0,
+        0, -1, 2.0,
+        0.692, -0.4, 2.0,
+        0.866, -0.5, 2.0,
+      ],
+      [
+        0.692, -0.4, 2.0,
+        0.866, -0.5, 2.0,
+        0.692, 0.4, 2.0,
+        0.866, -0.5, 2.0,
+        0.692, 0.4, 2.0,
+        0.866, 0.5, 2.0,
+      ],
+      [
+        0.692, 0.4, 2.0,
+        0.866, 0.5, 2.0,
+        0, 0.8, 2.0,
+        0.866, 0.5, 2.0,
+        0, 0.8, 2.0,
+        0, 1, 2.0,
+      ]
+    ]

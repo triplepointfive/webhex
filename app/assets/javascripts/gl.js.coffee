@@ -53,36 +53,49 @@ class @App
         Shader.setColor3 getColor(@bColor3())
         return
 
-
   @animate: ->
     return console.log 'nested' if @render
+    @time += 0.01
     @color();
 
+    if @time > @rotDur
+      @rotDir = (0.5 - Math.random()) / 5
+      @rotDur = @time + 0.2 + Math.random() / 10
+
     @render = true
-    @nagl += 0.01
+    @nagl += @rotDir
     if KeyManager.isPressed(1)
-      @angle -= 0.05
+      @angle -= 0.1
     if KeyManager.isPressed(3)
-      @angle += 0.05
+      @angle += 0.1
 
     @angle -= 2 * Math.PI if @angle > 10
     @nagl -= 2 * Math.PI if @nagl > 10
     @angle += 2 * Math.PI if @angle < -10
     @nagl += 2 * Math.PI if @nagl < -10
 
+    gScaled = mat4.create()
+    mat4.scale(gScaled, mat4.create(), vec3.fromValues(Math.sin(@time*5) + 0.1, Math.sin(@time*5) + 0.1, 1)) if Math.sin(@time*5) > 0.95
     gWorld = mat4.perspective(mat4.create(), 30, window.innerWidth / window.innerHeight, 0, 100)
+    mat4.multiply(gWorld, gScaled, gWorld)
+
     plRotated = mat4.rotateZ(mat4.create(), gWorld, @angle + @nagl)
-    bRotated = mat4.rotateZ(mat4.create(), gWorld, @nagl)
     plRransl = mat4.translate(mat4.create(), plRotated, vec3.fromValues(0, 1.5, 0))
+
+    bRotated = mat4.rotateZ(mat4.create(), gWorld, @nagl)
+
+    bScaled = mat4.multiply(mat4.create(), mat4.scale(mat4.create(), mat4.create(), vec3.fromValues(5 - @time, 5 - @time, 1)), bRotated)
 
     @back.setGWorld(bRotated)
     @base.setGWorld(bRotated)
     @pl.setGWorld(plRransl)
+    @bl.setGWorld(bScaled)
 
     @GL.clear @GL.COLOR_BUFFER_BIT
     @back.render()
-    @base.render()
+#    @base.render()
     @pl.render()
+    @bl.render()
     @GL.flush()
     @render = false
 
@@ -90,6 +103,11 @@ class @App
     @angle = 0
     @nagl = 0
     @colorTime = 0
+    @time = 0
+
+    @rotDir = (0.5 - Math.random()) / 5
+    @rotDur = 0.2 + Math.random() / 10
+
     @render = false
     @set = false
     setInterval ( => @swapColors()), 1000
@@ -111,6 +129,7 @@ class @App
     @back = new ColoredShader(@GL, new Background(@GL) )
     @base = new BaseShader(@GL, new Base(@GL))
     @pl = new ColoredShader(@GL, new Player(@GL))
+    @bl = new BlockShader(@GL, new Blocks(@GL))
 
     @GL.clearColor 0.0, 0.0, 0.0, 0.0
     @idle()
