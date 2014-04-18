@@ -58,9 +58,9 @@ class @App
     @time += 0.01
     @color();
 
-    if @time > @rotDur
-      @rotDir = (0.5 - Math.random()) / 5
-      @rotDur = @time + 0.2 + Math.random() / 10
+#    if @time > @rotDur
+#      @rotDir = (0.5 - Math.random()) / 5
+#      @rotDur = @time + 0.2 + Math.random() / 10
 
     @render = true
     @nagl += @rotDir
@@ -74,26 +74,33 @@ class @App
     @angle += 2 * Math.PI if @angle < -10
     @nagl += 2 * Math.PI if @nagl < -10
 
-    gScaled = mat4.create()
-    mat4.scale(gScaled, mat4.create(), vec3.fromValues(Math.sin(@time*5) + 0.1, Math.sin(@time*5) + 0.1, 1)) if Math.sin(@time*5) > 0.95
+    #    if Math.sin(@time*5) > 0.95
+    #      shaking = mat4.scale(mat4.create(), mat4.create(), vec3.fromValues(Math.sin(@time*5) + 0.1, Math.sin(@time*5) + 0.1, 1))
+    #      mat4.multiply(gWorld, shaking, gWorld)
+
     gWorld = mat4.perspective(mat4.create(), 30, window.innerWidth / window.innerHeight, 0, 100)
-    mat4.multiply(gWorld, gScaled, gWorld)
+    bRotate = mat4.rotateZ(mat4.create(), mat4.create(), @nagl)
 
-    plRotated = mat4.rotateZ(mat4.create(), gWorld, @angle + @nagl)
-    plRransl = mat4.translate(mat4.create(), plRotated, vec3.fromValues(0, 1.5, 0))
+    plRotate = mat4.rotateZ(mat4.create(), mat4.create(), @angle + @nagl)
+    plTranslate = mat4.translate(mat4.create(), mat4.create(), vec3.fromValues(0, 1.5, 0))
 
-    bRotated = mat4.rotateZ(mat4.create(), gWorld, @nagl)
+    bPipe = mat4.multiply(mat4.create(), gWorld, bRotate)
+    pPipe = mat4.multiply(mat4.create(), mat4.multiply(mat4.create(), gWorld, plRotate), plTranslate)
 
-    bScaled = mat4.multiply(mat4.create(), mat4.scale(mat4.create(), mat4.create(), vec3.fromValues(5 - @time, 5 - @time, 1)), bRotated)
+    blTranslate = mat4.translate(mat4.create(), mat4.create(), vec3.fromValues(5 + 4 * Math.sin(@time * 10), 0, 0))
+    blScale1 = mat4.scale(mat4.create(), mat4.create(), vec3.fromValues(1, 2.94, 1))
+    blScale2 = mat4.scale(mat4.create(), mat4.create(), vec3.fromValues(1, 3.36, 1))
+    blPipe1 = mat4.multiply(mat4.create(), mat4.multiply(mat4.create(), mat4.multiply(mat4.create(), gWorld, bRotate), blTranslate), blScale1)
+    blPipe2 = mat4.multiply(mat4.create(), mat4.multiply(mat4.create(), mat4.multiply(mat4.create(), gWorld, bRotate), blTranslate), blScale2)
 
-    @back.setGWorld(bRotated)
-    @base.setGWorld(bRotated)
-    @pl.setGWorld(plRransl)
-    @bl.setGWorld(bScaled)
+    @back.setGWorld(bPipe)
+    @base.setGWorld(bPipe)
+    @pl.setGWorld(pPipe)
+    @bl.setGWorld(blPipe1, blPipe2)
 
     @GL.clear @GL.COLOR_BUFFER_BIT
     @back.render()
-#    @base.render()
+    @base.render()
     @pl.render()
     @bl.render()
     @GL.flush()
@@ -105,8 +112,10 @@ class @App
     @colorTime = 0
     @time = 0
 
-    @rotDir = (0.5 - Math.random()) / 5
-    @rotDur = 0.2 + Math.random() / 10
+#    @rotDir = (0.5 - Math.random()) / 5
+#    @rotDur = 0.2 + Math.random() / 10
+    @rotDir = 0.01
+    @rotDur = 0
 
     @render = false
     @set = false

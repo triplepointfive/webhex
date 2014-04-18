@@ -22,14 +22,12 @@ class @Shader
     @GL.linkProgram @SHADER_PROGRAM
     @prepareAttribLocations()
     @setupUniformVars()
-    @gWorldLoc = @GL.getUniformLocation(@SHADER_PROGRAM, 'gWorld')
 
   setGWorld: (@gWorld) ->
 
   use: () ->
     @GL.useProgram @SHADER_PROGRAM
     @GL.enableVertexAttribArray @_position
-    @GL.uniformMatrix4fv(@gWorldLoc, false, @gWorld)
     @prepareUniformVars()
 
   shutdown: () ->
@@ -74,9 +72,11 @@ class @BaseShader extends  @Shader
     """
 
   prepareUniformVars: () ->
+    @GL.uniformMatrix4fv(@gWorldLoc, false, @gWorld)
     @GL.uniform3fv(@bColor3Loc, Shader.color3)
 
   setupUniformVars: () ->
+    @gWorldLoc = @GL.getUniformLocation(@SHADER_PROGRAM, 'gWorld')
     @bColor3Loc = @GL.getUniformLocation(@SHADER_PROGRAM, 'bColor3')
 
   faceBuffer: () ->
@@ -124,11 +124,13 @@ class @ColoredShader extends @Shader
     """
 
   prepareUniformVars: () ->
+    @GL.uniformMatrix4fv(@gWorldLoc, false, @gWorld)
     @GL.uniform3fv(@bColor1Loc, Shader.color1)
     @GL.uniform3fv(@bColor2Loc, Shader.color2)
     @GL.uniform3fv(@bColor3Loc, Shader.color3)
 
   setupUniformVars: () ->
+    @gWorldLoc = @GL.getUniformLocation(@SHADER_PROGRAM, 'gWorld')
     @bColor1Loc = @GL.getUniformLocation(@SHADER_PROGRAM, 'bColor1')
     @bColor2Loc = @GL.getUniformLocation(@SHADER_PROGRAM, 'bColor2')
     @bColor3Loc = @GL.getUniformLocation(@SHADER_PROGRAM, 'bColor3')
@@ -141,8 +143,47 @@ class @ColoredShader extends @Shader
     @GL.drawArrays @GL.TRIANGLES, 0, @vertexBuffer().numItems
     @shutdown()
 
-class @BlockShader extends @ColoredShader
+class @BlockShader extends @Shader
+
+  shaderVertexSource: () ->
+    """
+    attribute vec4 position;
+
+    uniform mat4 gWorld1;
+    uniform mat4 gWorld2;
+    uniform vec3 bColor3;
+
+    varying vec3 vColor;
+    void main(void) {
+      if (position.z == 1.0)
+        gl_Position = gWorld1 * vec4( position.xy, -6.0, 1.);
+      else
+        gl_Position = gWorld2 * vec4( position.xy, -6.0, 1.);
+      vColor = bColor3;
+    }
+    """
+  shaderFragmentSource: () ->
+    """
+    precision mediump float;
+
+    varying vec3 vColor;
+    void main(void) {
+      gl_FragColor = vec4(vColor, 1.);
+    }
+    """
+  prepareUniformVars: () ->
+    @GL.uniformMatrix4fv(@gWorld1Loc, false, @gWorld1)
+    @GL.uniformMatrix4fv(@gWorld2Loc, false, @gWorld2)
+    @GL.uniform3fv(@bColor3Loc, Shader.color3)
+
+  setupUniformVars: () ->
+    @gWorld1Loc = @GL.getUniformLocation(@SHADER_PROGRAM, 'gWorld1')
+    @gWorld2Loc = @GL.getUniformLocation(@SHADER_PROGRAM, 'gWorld2')
+    @bColor3Loc = @GL.getUniformLocation(@SHADER_PROGRAM, 'bColor3')
+
   vertexBuffer: () ->
+
+  setGWorld: (@gWorld1, @gWorld2) ->
 
   render: () ->
     for vBuffer in @scene.vertexBuffers()
