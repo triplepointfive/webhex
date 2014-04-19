@@ -87,9 +87,11 @@ class @App
     bPipe = mat4.multiply(mat4.create(), gWorld, bRotate)
     pPipe = mat4.multiply(mat4.create(), mat4.multiply(mat4.create(), gWorld, plRotate), plTranslate)
 
-    blTranslate = mat4.translate(mat4.create(), mat4.create(), vec3.fromValues(5 + 4 * Math.sin(@time * 10), 0, 0))
-    blScale1 = mat4.scale(mat4.create(), mat4.create(), vec3.fromValues(1, 2.94, 1))
-    blScale2 = mat4.scale(mat4.create(), mat4.create(), vec3.fromValues(1, 3.36, 1))
+
+    position = 6 + 5 * Math.cos(@time * 2)
+    blTranslate = mat4.translate(mat4.create(), mat4.create(), vec3.fromValues(position, 0, 0))
+    blScale1 = mat4.scale(mat4.create(), mat4.create(), vec3.fromValues(1, Math.tan(Math.PI/ 6) * (position), 1))
+    blScale2 = mat4.scale(mat4.create(), mat4.create(), vec3.fromValues(1, Math.tan(Math.PI/ 6) * (position + 0.8), 1))
     blPipe1 = mat4.multiply(mat4.create(), mat4.multiply(mat4.create(), mat4.multiply(mat4.create(), gWorld, bRotate), blTranslate), blScale1)
     blPipe2 = mat4.multiply(mat4.create(), mat4.multiply(mat4.create(), mat4.multiply(mat4.create(), gWorld, bRotate), blTranslate), blScale2)
 
