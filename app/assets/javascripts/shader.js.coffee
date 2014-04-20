@@ -172,8 +172,6 @@ class @BlockShader extends @Shader
     }
     """
   prepareUniformVars: () ->
-    @GL.uniformMatrix4fv(@gWorld1Loc, false, @gWorld1)
-    @GL.uniformMatrix4fv(@gWorld2Loc, false, @gWorld2)
     @GL.uniform3fv(@bColor3Loc, Shader.color3)
 
   setupUniformVars: () ->
@@ -182,14 +180,17 @@ class @BlockShader extends @Shader
     @bColor3Loc = @GL.getUniformLocation(@SHADER_PROGRAM, 'bColor3')
 
   vertexBuffer: () ->
+    @scene.vertex_buffer
 
-  setGWorld: (@gWorld1, @gWorld2) ->
+  setBlock: (@block) ->
 
   render: () ->
-    for vBuffer in @scene.vertexBuffers()
-      @GL.bindBuffer @GL.ARRAY_BUFFER, vBuffer
-      @GL.vertexAttribPointer @_position, vBuffer.itemSize, @GL.FLOAT, false, 0, 0
+    for layer in @block.parts()
+      @GL.bindBuffer @GL.ARRAY_BUFFER, @vertexBuffer()
+      @GL.vertexAttribPointer @_position, @vertexBuffer().itemSize, @GL.FLOAT, false, 0, 0
 
       @use()
-      @GL.drawArrays @GL.TRIANGLES, 0, vBuffer.numItems
+      @GL.uniformMatrix4fv(@gWorld1Loc, false, layer[0])
+      @GL.uniformMatrix4fv(@gWorld2Loc, false, layer[1])
+      @GL.drawArrays @GL.TRIANGLES, 0, @vertexBuffer().numItems
       @shutdown()

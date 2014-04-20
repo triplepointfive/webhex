@@ -106,27 +106,16 @@ class @Player extends Scene
 
 class @Blocks extends Scene
 
-  constructor: (@GL) ->
-    @vBuffers = []
-    for vertexes in @vertexes
-      vertex_buffer = @GL.createBuffer()
-      @GL.bindBuffer @GL.ARRAY_BUFFER, vertex_buffer
-      @GL.bufferData @GL.ARRAY_BUFFER, new Float32Array(vertexes), @GL.STATIC_DRAW
-      vertex_buffer.itemSize = 3
-      vertex_buffer.numItems = vertexes.length / 3
-      @vBuffers.push vertex_buffer
-
-  vertexBuffers: () ->
-    @vBuffers
+  itemSize: 3
+  size: () ->
+    @vertexes.length / 3
 
   vertexes:
     [
-      [
-        0.0, 1, 1.0,
-        0.8, 1, 2.0,
-        0.0, -1, 1.0,
-        0.8, 1, 2.0,
-        0.0, -1, 1.0,
-        0.8, -1, 2.0,
-      ]
+      0.0, 1, 1.0,
+      0.8, 1, 2.0,
+      0.0, -1, 1.0,
+      0.8, 1, 2.0,
+      0.0, -1, 1.0,
+      0.8, -1, 2.0
     ]

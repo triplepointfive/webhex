@@ -87,18 +87,12 @@ class @App
     bPipe = mat4.multiply(mat4.create(), gWorld, bRotate)
     pPipe = mat4.multiply(mat4.create(), mat4.multiply(mat4.create(), gWorld, plRotate), plTranslate)
 
-
-    position = 6 + 5 * Math.cos(@time * 2)
-    blTranslate = mat4.translate(mat4.create(), mat4.create(), vec3.fromValues(position, 0, 0))
-    blScale1 = mat4.scale(mat4.create(), mat4.create(), vec3.fromValues(1, Math.tan(Math.PI/ 6) * (position), 1))
-    blScale2 = mat4.scale(mat4.create(), mat4.create(), vec3.fromValues(1, Math.tan(Math.PI/ 6) * (position + 0.8), 1))
-    blPipe1 = mat4.multiply(mat4.create(), mat4.multiply(mat4.create(), mat4.multiply(mat4.create(), gWorld, bRotate), blTranslate), blScale1)
-    blPipe2 = mat4.multiply(mat4.create(), mat4.multiply(mat4.create(), mat4.multiply(mat4.create(), gWorld, bRotate), blTranslate), blScale2)
+    @block.setUp(gWorld, @time, bRotate)
 
     @back.setGWorld(bPipe)
     @base.setGWorld(bPipe)
     @pl.setGWorld(pPipe)
-    @bl.setGWorld(blPipe1, blPipe2)
+    @bl.setBlock(@block)
 
     @GL.clear @GL.COLOR_BUFFER_BIT
     @back.render()
@@ -141,6 +135,8 @@ class @App
     @base = new BaseShader(@GL, new Base(@GL))
     @pl = new ColoredShader(@GL, new Player(@GL))
     @bl = new BlockShader(@GL, new Blocks(@GL))
+
+    @block = new Block()
 
     @GL.clearColor 0.0, 0.0, 0.0, 0.0
     @idle()
