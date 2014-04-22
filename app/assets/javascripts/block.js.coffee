@@ -3,56 +3,57 @@ class @Block
   numberOfParts = 6
   partAngle = Math.PI / numberOfParts
   blockWidth = 0.8
+  speed = 0.08
 
   heightForPosition = (position) ->
     Math.tan(partAngle) * position
 
   constructor: ->
+    @position = initialPosition
     @blocks = [
-      position: initialPosition
-      parts: [ 0, 1, 3, 4, 5 ]
-    ,
-      position: initialPosition + 5 * blockWidth
-      parts: [ 0, 2, 3, 5 ]
-    ,
-      position: initialPosition + 6 * blockWidth
-      parts: [ 0, 3]
-    ,
-      position: initialPosition + 7 * blockWidth
-      parts: [ 1, 4 ]
-    ,
-      position: initialPosition + 8 * blockWidth
-      parts: [ 1, 2, 4, 5 ]
+      [ 0, 1, 3, 4, 5 ]
+      [ 0, 2, 3, 5 ]
+      [ 0, 3]
+      [ 1, 4 ]
+      [ 1, 2, 4, 5 ]
+      [ 0, 2, 3, 5 ]
+      [ 0, 3]
+      [ 1, 4 ]
+      [ 1, 2, 4, 5 ]
+      [ 0, 2, 3, 5 ]
+      [ 0, 3]
+      [ 1, 4 ]
+      [ 1, 2, 4, 5 ]
     ]
     @renderParts = []
+    @callNumber = 0
 
-  setUp: (gWorld, time, bRotate) ->
-    @updatePosition(time)
+  setUp: (gWorld, bRotate) ->
+    @updatePosition()
     cRotate = mat4.multiply(mat4.create(), gWorld, bRotate)
-    @renderParts = @blocks.map (layer) ->
-      blTranslate = mat4.translate(mat4.create(), mat4.create(), vec3.fromValues(layer.position, 0, 0))
-      blScale1 = mat4.scale(mat4.create(), mat4.create(), vec3.fromValues(1, heightForPosition(layer.position), 1))
-      blScale2 = mat4.scale(mat4.create(), mat4.create(), vec3.fromValues(1, heightForPosition(layer.position + 0.8), 1))
-      for i in layer.parts
-        if i == 0
+    @renderParts = []
+    for v, i in @blocks
+      position = @position + blockWidth * i
+      blTranslate = mat4.translate(mat4.create(), mat4.create(), vec3.fromValues(position, 0, 0))
+      blScale1 = mat4.scale(mat4.create(), mat4.create(), vec3.fromValues(1, heightForPosition(position), 1))
+      blScale2 = mat4.scale(mat4.create(), mat4.create(), vec3.fromValues(1, heightForPosition(position + blockWidth), 1))
+      for part in v
+        if part == 0
           additionalRotation = cRotate
         else
-          additionalRotation = mat4.rotateZ(mat4.create(), cRotate, partAngle * i * 2)
+          additionalRotation = mat4.rotateZ(mat4.create(), cRotate, partAngle * part * 2)
         blPipe1 = mat4.multiply(mat4.create(), mat4.multiply(mat4.create(), additionalRotation, blTranslate), blScale1)
         blPipe2 = mat4.multiply(mat4.create(), mat4.multiply(mat4.create(), additionalRotation, blTranslate), blScale2)
-        [blPipe1, blPipe2]
-    .flatten(1)
+        @renderParts.push [blPipe1, blPipe2]
 
   parts: ->
-    console.log @renderParts
     @renderParts
 
-  updatePosition: (time) ->
-    @blocks = @blocks.map (layer) ->
-      position = layer.position - 0.08
-      if position <= 0.2
-        null
-      else
-        position: position
-        parts: layer.parts
-    .filter (layer) -> layer isnt null
+  updatePosition: ->
+    @position -= speed
+    if @position <= 0.2
+      @callNumber++
+      @blocks.push([], [], [ 1, 2, 4, 5 ]) if @callNumber % 3 == 0
+      console.log @blocks.length
+      @blocks.shift()
+      @position += blockWidth

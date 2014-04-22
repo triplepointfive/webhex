@@ -87,7 +87,7 @@ class @App
     bPipe = mat4.multiply(mat4.create(), gWorld, bRotate)
     pPipe = mat4.multiply(mat4.create(), mat4.multiply(mat4.create(), gWorld, plRotate), plTranslate)
 
-    @block.setUp(gWorld, @time, bRotate)
+    @block.setUp(gWorld, bRotate)
 
     @back.setGWorld(bPipe)
     @base.setGWorld(bPipe)
