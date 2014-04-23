@@ -6,6 +6,8 @@ hexToRgb = (hex) ->
       parseInt(result[3], 16) / 256
     ]
 
+userSpeed = Math.PI / 30
+
 class @App
   @swapColors: () ->
     @set = !@set
@@ -65,9 +67,9 @@ class @App
     @render = true
     @nagl += @rotDir
     if KeyManager.isPressed(1)
-      @angle -= 0.1
+      @angle -= userSpeed if @block.isPositionValid(@angle - userSpeed)
     if KeyManager.isPressed(3)
-      @angle += 0.1
+      @angle += userSpeed if @block.isPositionValid(@angle + userSpeed)
 
     @angle -= 2 * Math.PI if @angle > 10
     @nagl -= 2 * Math.PI if @nagl > 10
